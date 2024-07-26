@@ -1,5 +1,17 @@
 package Quiz;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 public class ReportGeneration {
@@ -73,5 +85,42 @@ public class ReportGeneration {
         } else {
             return str.substring(0, width - 3) + "...";
         }
+    }
+
+    /**
+     * Generates a PDF report with questions and their correct answers.
+     *
+     * @param filePath         the file path to save the PDF report
+     * @param questionAttempts a list of QuestionAttempt objects containing quiz details
+     * @throws DocumentException if an error occurs during PDF creation
+     * @throws IOException       if an I/O error occurs
+     */
+    public static void generatePDFReport(String filePath, List<QuestionAttempt> questionAttempts) throws DocumentException, IOException {
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, new FileOutputStream(filePath));
+
+        document.open();
+        Font font = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.NORMAL);
+        Font boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.BOLD);
+
+        Paragraph title = new Paragraph("Challenge Report", boldFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        document.add(title);
+        document.add(new Paragraph(" "));
+
+        PdfPTable table = new PdfPTable(2);
+        table.setWidthPercentage(100);
+        table.setWidths(new int[]{70, 30});
+
+        table.addCell(new Paragraph("Question", boldFont));
+        table.addCell(new Paragraph("Correct Answer", boldFont));
+
+        for (QuestionAttempt attempt : questionAttempts) {
+            table.addCell(new Paragraph(attempt.getQuestionText(), font));
+            table.addCell(new Paragraph(attempt.getCorrectAnswer(), font));
+        }
+
+        document.add(table);
+        document.close();
     }
 }

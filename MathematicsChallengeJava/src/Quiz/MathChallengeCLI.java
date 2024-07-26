@@ -6,6 +6,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import com.itextpdf.text.DocumentException;
+import javax.mail.MessagingException;
+import java.io.IOException;
 
 public class MathChallengeCLI {
     static Connection connection;
@@ -15,8 +18,8 @@ public class MathChallengeCLI {
 
     // ANSI escape codes for coloring
     private static final String ANSI_RESET = "\u001B[0m";
-    private static final String ANSI_RED = "\u001B[31m";
-    private static final String ANSI_BLUE = "\u001B[34m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
 
     public static void main(String[] args) {
         // Setup database connection
@@ -171,7 +174,13 @@ public class MathChallengeCLI {
                 // Display the report on the server
                 ReportGeneration.generateReport(currentUsername, currentSchoolRegNo, totalTimeTaken, questionAttempts);
 
+                // Generate and send PDF report
+                String pdfFilePath = "C:\\xampp\\htdocs\\The-Mathematics-Challenge-Project\\MathematicsChallengeJava\\questions_report.pdf"; // Updated path
+                PDFReportSender.generatePDFReport(questions, pdfFilePath);
+                PDFReportSender.sendPDFReport("recipient@example.com", "Quiz Report", "Please find attached the quiz report.", pdfFilePath);
+
                 if (attempts < maxAttempts) {
+                    System.out.println("Thank you for participating in the Mathematics Challenge!");
                     System.out.println("Do you want to attempt the challenge again? (yes/no)");
                     String retry = scanner.nextLine().trim().toLowerCase();
                     if (!retry.equals("yes")) {
@@ -196,6 +205,6 @@ public class MathChallengeCLI {
     private static void displayQuizStatus(int timeRemaining, int questionsRemaining) {
         int minutes = timeRemaining / 60000;
         int seconds = (timeRemaining % 60000) / 1000;
-        System.out.printf(ANSI_RED + "Time Remaining: %02d:%02d | Questions Remaining: %d" + ANSI_RESET + "\n", minutes, seconds, questionsRemaining);
+        System.out.printf(ANSI_YELLOW + "Time Remaining: %02d:%02d " + ANSI_GREEN + "| Questions Remaining: %d" + ANSI_RESET + "\n", minutes, seconds, questionsRemaining);
     }
 }
